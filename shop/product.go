@@ -22,7 +22,7 @@ type ProductServiceOp struct {
 
 type ProductCreate struct {
 	ProductInput ProductInput
-	MediaInput   CreateMediaInput
+	MediaInput   []CreateMediaInput
 }
 
 type ProductInput struct {

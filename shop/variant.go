@@ -27,9 +27,6 @@ type ProductVariantInput struct {
 	// Inventory Item associated with the variant, used for unit cost.
 	InventoryItem *InventoryItemInput `json:"inventoryItem,omitempty"`
 
-	// The fulfillment service that tracks the number of items in stock for the product variant. If you track the inventory yourself using the admin, then set the value to shopify. Valid values: shopify or the handle of a fulfillment service that has inventory management enabled. This argument is deprecated: Use tracked attribute on inventoryItem instead.
-	InventoryManagement ProductVariantInventoryManagement `json:"inventoryManagement,omitempty"`
-
 	// Whether customers are allowed to place an order for the product variant when it's out of stock.
 	InventoryPolicy ProductVariantInventoryPolicy `json:"inventoryPolicy,omitempty"`
 
@@ -60,7 +57,7 @@ type ProductVariantInput struct {
 	// The SKU for the variant.
 	SKU graphql.String `json:"sku,omitempty"`
 
-	// The tax code associated with the variant.
+	// This parameter applies only to the stores that have the Avalara AvaTax app installed. Specifies the Avalara tax code for the product variant.
 	TaxCode graphql.String `json:"taxCode,omitempty"`
 
 	// Whether the variant is taxable.
@@ -82,17 +79,15 @@ type Decimal string // Serialized decimal.Decimal
 type InventoryItemInput struct {
 	// Unit cost associated with the inventory item, the currency is the shop's default currency.
 	Cost Decimal `json:"cost,omitempty"`
-	// Whether the inventory item is tracked.
+	// Whether the inventory item is tracked. If true, then inventory quantity changes are tracked by Shopify.
 	Tracked graphql.Boolean `json:"tracked,omitempty"`
 }
-
-type ProductVariantInventoryManagement string // String enum: FULFILLMENT_SERVICE, NOT_MANAGED, SHOPIFY
 
 type ProductVariantInventoryPolicy string // String enum: CONTINUE, DENY
 
 type InventoryLevelInput struct {
-	AvailableQuantity graphql.Int `json:"availableQuantity,omitempty"`
-	LocationID        graphql.ID  `json:"locationId,omitempty"`
+	AvailableQuantity graphql.Int `json:"availableQuantity"`
+	LocationID        graphql.ID  `json:"locationId"`
 }
 
 type WeightUnit string // String enum: GRAMS, KILOGRAMS, OUNCES, POUNDS
