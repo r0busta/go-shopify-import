@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"os"
 
 	"github.com/shurcooL/graphql"
 )
@@ -114,7 +113,7 @@ type PrivateMetafieldValueInput struct {
 
 type PrivateMetafieldValueType string // Enum of strings: INTEGER, JSON_STRING, STRING
 
-type MetafieldValueType graphql.String
+type MetafieldValueType string // Enum of strings: INTEGER, JSON_STRING, STRING
 
 type SEOInput struct {
 	Description graphql.String `json:"description,omitempty"`
@@ -139,13 +138,6 @@ type productCreateResult struct {
 }
 
 func (s *ProductServiceOp) CreateBulk(products []*ProductCreate) error {
-	out, e := os.OpenFile("out.json", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0666)
-	if e != nil {
-		panic(e)
-	}
-	WriteFormatedJSON(out, products)
-	return nil
-
 	for _, p := range products {
 		err := s.Create(p)
 		if err != nil {
