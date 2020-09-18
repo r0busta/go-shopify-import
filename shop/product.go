@@ -2,26 +2,46 @@ package shop
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 
 	"github.com/shurcooL/graphql"
 )
 
 type ProductService interface {
+	List() ([]*Product, error)
 	Create(product *ProductCreate) error
-	CreateBulk(products []*ProductCreate) error
+	CreateBulk(products []*ProductCreate, status ProgressStatus) error
+	Update(product *ProductUpdate) error
+	UpdateBulk(products []*ProductUpdate, status ProgressStatus) error
+	Delete(product *ProductDelete) error
+	DeleteBulk(products []*ProductDelete, status ProgressStatus) error
 }
 
 type ProductServiceOp struct {
 	client *Client
 }
 
+type Product struct {
+	ID     graphql.ID     `json:"id,omitempty"`
+	Handle graphql.String `json:"handle,omitempty"`
+}
+
 type ProductCreate struct {
 	ProductInput ProductInput
 	MediaInput   []CreateMediaInput
+}
+
+type ProductUpdate struct {
+	ProductInput ProductInput
+}
+
+type ProductDelete struct {
+	ProductInput ProductInput
+}
+
+type ProductDeleteInput struct {
+	ID graphql.ID `json:"id,omitempty"`
 }
 
 type ProductInput struct {
@@ -130,6 +150,14 @@ type mutationProductCreate struct {
 	ProductCreateResult productCreateResult `graphql:"productCreate(input: $input, media: $media)"`
 }
 
+type mutationProductUpdate struct {
+	ProductUpdateResult productUpdateResult `graphql:"productUpdate(input: $input)"`
+}
+
+type mutationProductDelete struct {
+	ProductDeleteResult productDeleteResult `graphql:"productDelete(input: $input)"`
+}
+
 type productCreateResult struct {
 	Product struct {
 		ID string `json:"id,omitempty"`
@@ -137,22 +165,55 @@ type productCreateResult struct {
 	UserErrors []UserErrors
 }
 
-func (s *ProductServiceOp) CreateBulk(products []*ProductCreate) error {
+type productUpdateResult struct {
+	Product struct {
+		ID string `json:"id,omitempty"`
+	}
+	UserErrors []UserErrors
+}
+
+type productDeleteResult struct {
+	ID         string `json:"deletedProductId,omitempty"`
+	UserErrors []UserErrors
+}
+
+func (s *ProductServiceOp) List() ([]*Product, error) {
+	query := `
+		{
+			products{
+				edges{
+					node{
+						id
+						handle
+					}
+				}
+			}
+		}
+`
+
+	res := []*Product{}
+	err := bulkQuery(s.client.gql, query, &res)
+	if err != nil {
+		return []*Product{}, err
+	}
+
+	return res, nil
+}
+
+func (s *ProductServiceOp) CreateBulk(products []*ProductCreate, status ProgressStatus) error {
+	status.Total <- len(products)
+
+	count := 0
 	for _, p := range products {
 		err := s.Create(p)
 		if err != nil {
-			log.Println("Warning! Couldn't create product (%v)", p)
+			log.Printf("Warning! Couldn't create product (%v): %s", p, err)
 		}
+		count++
+		status.Count <- count
 	}
 
 	return nil
-}
-
-func WriteFormatedJSON(w io.Writer, v interface{}) error {
-	enc := json.NewEncoder(w)
-	enc.SetIndent("", "    ")
-	enc.SetEscapeHTML(false)
-	return enc.Encode(v)
 }
 
 func (s *ProductServiceOp) Create(product *ProductCreate) error {
@@ -169,6 +230,74 @@ func (s *ProductServiceOp) Create(product *ProductCreate) error {
 
 	if len(m.ProductCreateResult.UserErrors) > 0 {
 		return fmt.Errorf("%+v", m.ProductCreateResult.UserErrors)
+	}
+
+	return nil
+}
+
+func (s *ProductServiceOp) UpdateBulk(products []*ProductUpdate, status ProgressStatus) error {
+	status.Total <- len(products)
+
+	count := 0
+	for _, p := range products {
+		err := s.Update(p)
+		if err != nil {
+			log.Printf("Warning! Couldn't update product (%v): %s", p, err)
+		}
+		count++
+		status.Count <- count
+	}
+
+	return nil
+}
+
+func (s *ProductServiceOp) Update(product *ProductUpdate) error {
+	m := mutationProductUpdate{}
+
+	vars := map[string]interface{}{
+		"input": product.ProductInput,
+	}
+	err := s.client.gql.Mutate(context.Background(), &m, vars)
+	if err != nil {
+		return err
+	}
+
+	if len(m.ProductUpdateResult.UserErrors) > 0 {
+		return fmt.Errorf("%+v", m.ProductUpdateResult.UserErrors)
+	}
+
+	return nil
+}
+
+func (s *ProductServiceOp) DeleteBulk(products []*ProductDelete, status ProgressStatus) error {
+	status.Total <- len(products)
+
+	count := 0
+	for _, p := range products {
+		err := s.Delete(p)
+		if err != nil {
+			log.Printf("Warning! Couldn't delete product (%v): %s", p, err)
+		}
+		count++
+		status.Count <- count
+	}
+
+	return nil
+}
+
+func (s *ProductServiceOp) Delete(product *ProductDelete) error {
+	m := mutationProductDelete{}
+
+	vars := map[string]interface{}{
+		"input": product.ProductInput,
+	}
+	err := s.client.gql.Mutate(context.Background(), &m, vars)
+	if err != nil {
+		return err
+	}
+
+	if len(m.ProductDeleteResult.UserErrors) > 0 {
+		return fmt.Errorf("%+v", m.ProductDeleteResult.UserErrors)
 	}
 
 	return nil

@@ -18,6 +18,11 @@ type Client struct {
 	Product ProductService
 }
 
+type ProgressStatus struct {
+	Total chan int
+	Count chan int
+}
+
 type UserErrors struct {
 	Field   []graphql.String
 	Message graphql.String
