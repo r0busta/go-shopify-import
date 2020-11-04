@@ -5,11 +5,11 @@ import (
 	"log"
 	"os"
 
-	shopifygraphql "github.com/r0busta/go-shopify-graphql"
+	shop "github.com/r0busta/go-shopify-graphql"
 	"github.com/shurcooL/graphql"
 )
 
-func Do(shopClient *shopifygraphql.Client, decoder Decoder, inputFile, dedupBy string, overwrite bool) error {
+func Do(shopClient *shop.Client, decoder Decoder, inputFile, dedupBy string, overwrite bool) error {
 	f, err := os.Open(inputFile)
 	if err != nil {
 		return fmt.Errorf("error opening input file: %s", err)
@@ -22,7 +22,7 @@ func Do(shopClient *shopifygraphql.Client, decoder Decoder, inputFile, dedupBy s
 	}
 	log.Println("Data feed parsed")
 
-	existing, err := shopClient.Product.List()
+	existing, err := shopClient.Product.ListAll()
 	if err != nil {
 		return fmt.Errorf("error loading existing products: %s", err)
 	}
@@ -31,12 +31,12 @@ func Do(shopClient *shopifygraphql.Client, decoder Decoder, inputFile, dedupBy s
 
 	log.Printf("Importing products: %d to be created and %d to be updated", len(toCreate), len(toUpdate))
 
-	err = shopClient.Product.CreateBulk(toCreate, status)
+	err = shopClient.Product.CreateBulk(toCreate)
 	if err != nil {
 		return fmt.Errorf("error creating products: %s", err)
 	}
 
-	err = shopClient.Product.UpdateBulk(toUpdate, status)
+	err = shopClient.Product.UpdateBulk(toUpdate)
 	if err != nil {
 		return fmt.Errorf("error creating products: %s", err)
 	}
@@ -44,12 +44,12 @@ func Do(shopClient *shopifygraphql.Client, decoder Decoder, inputFile, dedupBy s
 	return nil
 }
 
-func dedupProducts(new []*shopifygraphql.ProductCreate, old []*shopifygraphql.Product, dedupBy string, overwrite bool) ([]*shopifygraphql.ProductCreate, []*shopifygraphql.ProductUpdate) {
-	toCreate := []*shopifygraphql.ProductCreate{}
-	toUpdate := []*shopifygraphql.ProductUpdate{}
+func dedupProducts(new []*shop.ProductCreate, old []*shop.Product, dedupBy string, overwrite bool) ([]*shop.ProductCreate, []*shop.ProductUpdate) {
+	toCreate := []*shop.ProductCreate{}
+	toUpdate := []*shop.ProductUpdate{}
 
 	if dedupBy == "handle" {
-		lookup := map[graphql.String]*shopifygraphql.Product{}
+		lookup := map[graphql.String]*shop.Product{}
 		for _, p := range old {
 			lookup[p.Handle] = p
 		}
@@ -62,7 +62,7 @@ func dedupProducts(new []*shopifygraphql.ProductCreate, old []*shopifygraphql.Pr
 				if overwrite {
 					copyInput := p.ProductInput
 					copyInput.ID = existing.ID
-					update := &shopifygraphql.ProductUpdate{ProductInput: copyInput}
+					update := &shop.ProductUpdate{ProductInput: copyInput}
 
 					log.Printf("%s exists at %s. Overwriting.", update.ProductInput.Handle, update.ProductInput.ID)
 					toUpdate = append(toUpdate, update)
@@ -76,7 +76,7 @@ func dedupProducts(new []*shopifygraphql.ProductCreate, old []*shopifygraphql.Pr
 		}
 	} else {
 		log.Fatalln("Not-implemented dedup type", dedupBy)
-		return []*shopifygraphql.ProductCreate{}, []*shopifygraphql.ProductUpdate{}
+		return []*shop.ProductCreate{}, []*shop.ProductUpdate{}
 	}
 
 	return toCreate, toUpdate
