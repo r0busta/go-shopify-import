@@ -5,16 +5,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/r0busta/go-shopify-import/shop"
-
+	shopifygraphql "github.com/r0busta/go-shopify-graphql"
 	"github.com/shurcooL/graphql"
 )
 
-const (
-	CSV = ".csv"
-)
-
-func Do(shopClient *shop.Client, decoder Decoder, inputFile, dedupBy string, overwrite bool, status shop.ProgressStatus) error {
+func Do(shopClient *shopifygraphql.Client, decoder Decoder, inputFile, dedupBy string, overwrite bool) error {
 	f, err := os.Open(inputFile)
 	if err != nil {
 		return fmt.Errorf("error opening input file: %s", err)
@@ -49,12 +44,12 @@ func Do(shopClient *shop.Client, decoder Decoder, inputFile, dedupBy string, ove
 	return nil
 }
 
-func dedupProducts(new []*shop.ProductCreate, old []*shop.Product, dedupBy string, overwrite bool) ([]*shop.ProductCreate, []*shop.ProductUpdate) {
-	toCreate := []*shop.ProductCreate{}
-	toUpdate := []*shop.ProductUpdate{}
+func dedupProducts(new []*shopifygraphql.ProductCreate, old []*shopifygraphql.Product, dedupBy string, overwrite bool) ([]*shopifygraphql.ProductCreate, []*shopifygraphql.ProductUpdate) {
+	toCreate := []*shopifygraphql.ProductCreate{}
+	toUpdate := []*shopifygraphql.ProductUpdate{}
 
 	if dedupBy == "handle" {
-		lookup := map[graphql.String]*shop.Product{}
+		lookup := map[graphql.String]*shopifygraphql.Product{}
 		for _, p := range old {
 			lookup[p.Handle] = p
 		}
@@ -67,7 +62,7 @@ func dedupProducts(new []*shop.ProductCreate, old []*shop.Product, dedupBy strin
 				if overwrite {
 					copyInput := p.ProductInput
 					copyInput.ID = existing.ID
-					update := &shop.ProductUpdate{ProductInput: copyInput}
+					update := &shopifygraphql.ProductUpdate{ProductInput: copyInput}
 
 					log.Printf("%s exists at %s. Overwriting.", update.ProductInput.Handle, update.ProductInput.ID)
 					toUpdate = append(toUpdate, update)
@@ -81,7 +76,7 @@ func dedupProducts(new []*shop.ProductCreate, old []*shop.Product, dedupBy strin
 		}
 	} else {
 		log.Fatalln("Not-implemented dedup type", dedupBy)
-		return []*shop.ProductCreate{}, []*shop.ProductUpdate{}
+		return []*shopifygraphql.ProductCreate{}, []*shopifygraphql.ProductUpdate{}
 	}
 
 	return toCreate, toUpdate
