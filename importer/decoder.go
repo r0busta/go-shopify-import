@@ -3,9 +3,9 @@ package importer
 import (
 	"io"
 
-	shop "github.com/r0busta/go-shopify-graphql"
+	"github.com/r0busta/go-shopify-graphql/v2"
 )
 
 type Decoder interface {
-	Decode(io.Reader) ([]*shop.ProductCreate, error)
+	Decode(io.Reader) ([]*shopify.ProductCreate, error)
 }
