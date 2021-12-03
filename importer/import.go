@@ -23,8 +23,7 @@ func Do(shopClient *shopify.Client, decoder Decoder, inputFile, supplierTag, ded
 	}
 	log.Printf("Data feed parsed (%d products)", len(products))
 
-	os.Exit(0)
-
+	log.Printf("Fetching all products from Shopify")
 	existing, err := shopClient.Product.List(fmt.Sprintf(`tag:'%s'`, supplierTag))
 	if err != nil {
 		return fmt.Errorf("error loading existing products: %s", err)
