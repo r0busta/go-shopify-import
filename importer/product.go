@@ -15,7 +15,7 @@ import (
 
 var productCache *diskstore.Store
 
-func fetchAllProducts(shopClient *shopify.Client, supplierTag string, productCachePath *string, refreshCache bool) ([]model.Product, error) {
+func FetchAllProducts(shopClient *shopify.Client, supplierTag string, productCachePath *string, refreshCache bool) ([]model.Product, error) {
 	useCache := false
 	if productCachePath != nil && *productCachePath != "" {
 		productCache = diskstore.New(*productCachePath)

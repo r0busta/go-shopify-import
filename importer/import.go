@@ -23,7 +23,7 @@ func Do(shopClient *shopify.Client, decoder Decoder, importData io.Reader, suppl
 	}
 	log.Printf("data parsed (%d products)", len(importProducts))
 
-	existingProducts, err := fetchAllProducts(shopClient, supplierTag, productCachePath, refreshCache)
+	existingProducts, err := FetchAllProducts(shopClient, supplierTag, productCachePath, refreshCache)
 	if err != nil {
 		return fmt.Errorf("fetching products: %s", err)
 	}
