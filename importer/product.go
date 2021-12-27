@@ -245,6 +245,12 @@ func mergeProductData(newData model.ProductInput, oldData model.Product) (*model
 }
 
 func getMissingVariants(newProduct model.ProductInput, oldProduct model.Product) *variantBulkCreateInput {
+	if haveDifferentOptions(newProduct.Options, oldProduct.Options) {
+		log.Println("new product has different options", zeroOrValue(newProduct.Handle), oldProduct.ID)
+
+		return nil
+	}
+
 	oldSKUSet := map[string]struct{}{}
 	for _, v := range oldProduct.Variants.Edges {
 		oldSKUSet[*v.Node.Sku] = struct{}{}
@@ -255,6 +261,8 @@ func getMissingVariants(newProduct model.ProductInput, oldProduct model.Product)
 		if _, ok := oldSKUSet[*newVariant.Sku]; ok {
 			continue
 		}
+
+		options := adjustOptionsOrder(newVariant.Options, newProduct.Options, oldProduct.Options)
 
 		productVariantsBulkInput = append(productVariantsBulkInput, model.ProductVariantsBulkInput{
 			ID:                   nil,
@@ -270,7 +278,7 @@ func getMissingVariants(newProduct model.ProductInput, oldProduct model.Product)
 			InventoryItem:        newVariant.InventoryItem,
 			Metafields:           newVariant.Metafields,
 			PrivateMetafields:    newVariant.PrivateMetafields,
-			Options:              newVariant.Options,
+			Options:              options,
 			Price:                newVariant.Price,
 			RequiresShipping:     newVariant.RequiresShipping,
 			Sku:                  newVariant.Sku,
@@ -290,6 +298,44 @@ func getMissingVariants(newProduct model.ProductInput, oldProduct model.Product)
 	}
 
 	return nil
+}
+
+func haveDifferentOptions(newOptions []string, oldOptions []model.ProductOption) bool {
+	if len(newOptions) != len(oldOptions) {
+		return true
+	}
+
+	options := []string{}
+	for _, o := range oldOptions {
+		options = append(options, o.Name)
+	}
+
+	for _, newOption := range newOptions {
+		if !funk.ContainsString(options, newOption) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func adjustOptionsOrder(selectedOptions []string, newOptions []string, oldOptions []model.ProductOption) []string {
+	if len(selectedOptions) != len(newOptions) {
+		log.Panicln("selected options length is not equal to new options length")
+	}
+
+	positions := map[string]int{}
+	for i, o := range oldOptions {
+		positions[o.Name] = i
+	}
+
+	sortedOptions := make([]string, len(newOptions))
+	for i, newOption := range newOptions {
+		newPosition := positions[newOption]
+		sortedOptions[newPosition] = selectedOptions[i]
+	}
+
+	return sortedOptions
 }
 
 func createProductsBulk(s *shopify.Client, products []model.ProductInput) {

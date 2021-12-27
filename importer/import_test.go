@@ -411,23 +411,31 @@ func TestDoCreateMissingVariants(t *testing.T) {
 				{
 					"handle": "handle-1",
 					"title": "title-1-new",
+					"options": ["Color", "Size"],
 					"variants": [{
-						"sku": "sku-1-1"
+						"sku": "sku-1-1",
+						"options": ["Black", "S"]
 					},{
-						"sku": "sku-1-2"
+						"sku": "sku-1-2",
+						"options": ["Black", "M"]
 					},{
-						"sku": "sku-1-3"
+						"sku": "sku-1-3",
+						"options": ["Black", "L"]
 					},{
-						"sku": "sku-1-4"
+						"sku": "sku-1-4",
+						"options": ["Black", "XL"]
 					}]
 				},
 				{
 					"handle": "handle-2",
 					"title": "title-2-new",
+					"options": ["Color", "Size"],
 					"variants": [{
-						"sku": "sku-2-1"
+						"sku": "sku-2-1",
+						"options": ["Black", "S"]
 					},{
-						"sku": "sku-2-2"
+						"sku": "sku-2-2",
+						"options": ["Black", "M"]
 					}]
 				}
 			]`,
@@ -436,6 +444,14 @@ func TestDoCreateMissingVariants(t *testing.T) {
 					ID:     "product-1",
 					Handle: "handle-1",
 					Title:  "title-1",
+					Options: []model.ProductOption{
+						{
+							Name: "Size",
+						},
+						{
+							Name: "Color",
+						},
+					},
 					Variants: &model.ProductVariantConnection{
 						Edges: []model.ProductVariantEdge{
 							{
@@ -457,6 +473,14 @@ func TestDoCreateMissingVariants(t *testing.T) {
 					ID:     "product-2",
 					Handle: "handle-2",
 					Title:  "title-2",
+					Options: []model.ProductOption{
+						{
+							Name: "Color",
+						},
+						{
+							Name: "Size",
+						},
+					},
 					Variants: &model.ProductVariantConnection{
 						Edges: []model.ProductVariantEdge{
 							{
@@ -489,10 +513,12 @@ func TestDoCreateMissingVariants(t *testing.T) {
 					"productId": "product-1",
 					"variants": []model.ProductVariantsBulkInput{
 						{
-							Sku: model.NewString("sku-1-2"),
+							Sku:     model.NewString("sku-1-2"),
+							Options: []string{"M", "Black"},
 						},
 						{
-							Sku: model.NewString("sku-1-4"),
+							Sku:     model.NewString("sku-1-4"),
+							Options: []string{"XL", "Black"},
 						},
 					},
 				},
@@ -500,7 +526,8 @@ func TestDoCreateMissingVariants(t *testing.T) {
 					"productId": "product-2",
 					"variants": []model.ProductVariantsBulkInput{
 						{
-							Sku: model.NewString("sku-2-2"),
+							Sku:     model.NewString("sku-2-2"),
+							Options: []string{"Black", "M"},
 						},
 					},
 				},
