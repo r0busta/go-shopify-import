@@ -6,7 +6,6 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/r0busta/go-object-store v0.0.1
 	github.com/r0busta/go-shopify-graphql-model/v3 v3.0.0
-	github.com/r0busta/go-shopify-graphql/v5 v5.1.1
 	github.com/r0busta/go-shopify-graphql/v6 v6.2.1
 	github.com/r0busta/graphql v1.2.0
 	github.com/stretchr/testify v1.8.0
@@ -21,7 +20,6 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/r0busta/go-shopify-graphql-model/v2 v2.0.0 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	golang.org/x/net v0.0.0-20220805013720-a33c5aa5df48 // indirect
 	golang.org/x/sys v0.0.0-20220804214406-8e32c043e418 // indirect

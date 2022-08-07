@@ -26,12 +26,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/r0busta/go-object-store v0.0.1 h1:U7AN7eKqTflcVthyx11tgDtPorGBjAER1mzh+Mgth68=
 github.com/r0busta/go-object-store v0.0.1/go.mod h1:4TVkuAXmkYFF8hktztePn9TkSWtsTv1RtfdjxbbxuSI=
-github.com/r0busta/go-shopify-graphql-model/v2 v2.0.0 h1:AzwmN9qB+Z5Ag6sCo1dDHQ/fvsIi/pBq9euNWjh2MLQ=
-github.com/r0busta/go-shopify-graphql-model/v2 v2.0.0/go.mod h1:1akM08ILr7HkYsADuGz2HY4+w3tskufYHXhZA6bVhjw=
 github.com/r0busta/go-shopify-graphql-model/v3 v3.0.0 h1:BwfKdCW7/0OdvrQ5zN+VULrqbsHPNWL2KQdN2CJ77x0=
 github.com/r0busta/go-shopify-graphql-model/v3 v3.0.0/go.mod h1:URLqpkO1qmYcL7uUgntzgbZX80BN2MwpPqIDTWVVrQ8=
-github.com/r0busta/go-shopify-graphql/v5 v5.1.1 h1:krIiCeqac2blAFfQJZBzzrwo0m/vq8Ss3aon3cAh+Gk=
-github.com/r0busta/go-shopify-graphql/v5 v5.1.1/go.mod h1:ddVeCD/lIi6+4XAZBt0KVOPaR8LjLl1H6I0dWNHwbnQ=
 github.com/r0busta/go-shopify-graphql/v6 v6.2.1 h1:XOk9kxCJDo+C1HBKYHS5yWaWglPf0jxoTF0fLDXquHM=
 github.com/r0busta/go-shopify-graphql/v6 v6.2.1/go.mod h1:EHcLpaH9hylHLqRAjgZJkceQJhuyYbIehb5sZ23xM6M=
 github.com/r0busta/graphql v1.2.0 h1:vbq+Fyuegajydfu9mQsjNBXAJTfMYrczOLJdhLVhsrQ=
