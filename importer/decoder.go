@@ -3,7 +3,7 @@ package importer
 import (
 	"io"
 
-	"github.com/r0busta/go-shopify-graphql-model/v2/graph/model"
+	"github.com/r0busta/go-shopify-graphql-model/v3/graph/model"
 )
 
 type Decoder interface {

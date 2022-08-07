@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	diskstore "github.com/r0busta/go-object-store/disk"
-	"github.com/r0busta/go-shopify-graphql-model/v2/graph/model"
-	"github.com/r0busta/go-shopify-graphql/v5"
+	"github.com/r0busta/go-shopify-graphql-model/v3/graph/model"
+	"github.com/r0busta/go-shopify-graphql/v6"
 	"github.com/thoas/go-funk"
 )
 

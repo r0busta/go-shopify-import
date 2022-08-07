@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/r0busta/go-shopify-graphql-model/v2/graph/model"
-	"github.com/r0busta/go-shopify-graphql/v5"
+	"github.com/r0busta/go-shopify-graphql-model/v3/graph/model"
+	"github.com/r0busta/go-shopify-graphql/v6"
 )
 
 type variantBulkCreateInput struct {
