@@ -1,12 +1,12 @@
-module github.com/r0busta/go-shopify-import/v2
+module github.com/r0busta/go-shopify-import/v3
 
 go 1.20
 
 require (
 	github.com/golang/mock v1.6.0
 	github.com/r0busta/go-object-store v0.0.1
-	github.com/r0busta/go-shopify-graphql-model/v3 v3.0.0
-	github.com/r0busta/go-shopify-graphql/v8 v8.0.3
+	github.com/r0busta/go-shopify-graphql-model/v3 v3.0.1
+	github.com/r0busta/go-shopify-graphql/v8 v8.0.4
 	github.com/r0busta/graphql v1.2.0
 	github.com/stretchr/testify v1.8.4
 	github.com/thoas/go-funk v0.9.3
