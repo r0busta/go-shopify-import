@@ -1,6 +1,7 @@
 package importer_test
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,8 +10,8 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/r0busta/go-shopify-graphql-model/v3/graph/model"
-	"github.com/r0busta/go-shopify-graphql/v6"
-	shopifymock "github.com/r0busta/go-shopify-graphql/v6/mock"
+	"github.com/r0busta/go-shopify-graphql/v8"
+	shopifymock "github.com/r0busta/go-shopify-graphql/v8/mock"
 	"github.com/r0busta/go-shopify-import/v2/importer"
 	graphqlmock "github.com/r0busta/graphql/mock"
 	"github.com/stretchr/testify/require"
@@ -143,15 +144,15 @@ func TestDoOverwriteFalse(t *testing.T) {
 			dataReader := strings.NewReader(tt.args.data)
 
 			query := fmt.Sprintf(`tag:'%s'`, tt.args.supplierTag)
-			productService.EXPECT().List(query).Return(tt.wantExistingProducts, nil)
+			productService.EXPECT().List(context.Background(), query).Return(tt.wantExistingProducts, nil)
 
 			for _, p := range tt.wantProductCreate {
-				productService.EXPECT().Create(structEq(p)).Return(nil, nil)
+				productService.EXPECT().Create(context.Background(), structEq(p)).Return(nil, nil)
 			}
 
 			for _, p := range tt.wantProductUpdate {
 				p := p
-				productService.EXPECT().Update(structEq(p)).Return(nil)
+				productService.EXPECT().Update(context.Background(), structEq(p)).Return(nil)
 			}
 
 			const overwriteProducts = false
@@ -351,15 +352,15 @@ func TestDoOverwiteProducts(t *testing.T) {
 			dataReader := strings.NewReader(tt.importData)
 
 			query := fmt.Sprintf(`tag:'%s'`, tt.args.supplierTag)
-			productService.EXPECT().List(query).Return(tt.wantExistingProducts, nil)
+			productService.EXPECT().List(context.Background(), query).Return(tt.wantExistingProducts, nil)
 
 			for _, p := range tt.wantProductCreate {
-				productService.EXPECT().Create(structEq(p)).Return(nil, nil)
+				productService.EXPECT().Create(context.Background(), structEq(p)).Return(nil, nil)
 			}
 
 			for _, p := range tt.wantProductUpdate {
 				p := p
-				productService.EXPECT().Update(structEq(p)).Return(nil)
+				productService.EXPECT().Update(context.Background(), structEq(p)).Return(nil)
 			}
 
 			const overwriteProducts = true
@@ -544,22 +545,22 @@ func TestDoCreateMissingVariants(t *testing.T) {
 			gql := graphqlmock.NewMockGraphQL(ctrl)
 			productService := shopifymock.NewMockProductService(ctrl)
 
-			shopClient := shopify.NewClient("", "", "", shopify.WithGraphQLClient(gql))
+			shopClient := shopify.NewClient(shopify.WithGraphQLClient(gql))
 			shopClient.Product = productService
 
 			jsonDecoder := newJSONDecoder()
 			dataReader := strings.NewReader(tt.importData)
 
 			query := fmt.Sprintf(`tag:'%s'`, tt.args.supplierTag)
-			productService.EXPECT().List(query).Return(tt.wantExistingProducts, nil)
+			productService.EXPECT().List(context.Background(), query).Return(tt.wantExistingProducts, nil)
 
 			for _, p := range tt.wantProductCreate {
-				productService.EXPECT().Create(structEq(p)).Return(nil, nil)
+				productService.EXPECT().Create(context.Background(), structEq(p)).Return(nil, nil)
 			}
 
 			for _, p := range tt.wantProductUpdate {
 				p := p
-				productService.EXPECT().Update(structEq(p)).Return(nil)
+				productService.EXPECT().Update(context.Background(), structEq(p)).Return(nil)
 			}
 
 			for _, v := range tt.wantVariantBulkCreateVars {

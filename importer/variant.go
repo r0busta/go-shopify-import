@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"github.com/r0busta/go-shopify-graphql-model/v3/graph/model"
-	"github.com/r0busta/go-shopify-graphql/v6"
+	"github.com/r0busta/go-shopify-graphql/v8"
 )
 
 type variantBulkCreateInput struct {
@@ -91,7 +91,7 @@ func createVariantsBulk(s *shopify.Client, bulkCreate []variantBulkCreateInput) 
 func reorderVariantsBulk(s *shopify.Client, bulkReorder []variantBulkReorderInput) {
 	for i, p := range bulkReorder {
 		log.Println(i+1, "of", len(bulkReorder), "reordering variants in the product", p.ProductID)
-		err := s.Product.VariantsBulkReorder(p.ProductID, p.ProductVariantPositionInput)
+		err := s.Product.VariantsBulkReorder(context.Background(), p.ProductID, p.ProductVariantPositionInput)
 		if err != nil {
 			log.Printf("bulk reorder variants: %s", err)
 			b, _ := json.MarshalIndent(p, "", "    ")

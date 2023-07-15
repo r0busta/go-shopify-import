@@ -7,7 +7,7 @@ import (
 	"os"
 
 	diskstore "github.com/r0busta/go-object-store/disk"
-	"github.com/r0busta/go-shopify-graphql/v6"
+	"github.com/r0busta/go-shopify-graphql/v8"
 )
 
 type DedupMode string

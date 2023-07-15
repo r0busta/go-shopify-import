@@ -1,6 +1,7 @@
 package importer
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -9,7 +10,7 @@ import (
 
 	diskstore "github.com/r0busta/go-object-store/disk"
 	"github.com/r0busta/go-shopify-graphql-model/v3/graph/model"
-	"github.com/r0busta/go-shopify-graphql/v6"
+	"github.com/r0busta/go-shopify-graphql/v8"
 	"github.com/thoas/go-funk"
 )
 
@@ -43,7 +44,7 @@ func FetchAllProducts(shopClient *shopify.Client, supplierTag string, productCac
 		log.Printf("fetching all products from Shopify")
 
 		var err error
-		products, err = shopClient.Product.List(fmt.Sprintf(`tag:'%s'`, supplierTag))
+		products, err = shopClient.Product.List(context.Background(), fmt.Sprintf(`tag:'%s'`, supplierTag))
 		if err != nil {
 			return nil, fmt.Errorf("error loading existing products: %w", err)
 		}
@@ -341,7 +342,7 @@ func adjustOptionsOrder(selectedOptions []string, newOptions []string, oldOption
 func createProductsBulk(s *shopify.Client, products []model.ProductInput) {
 	for i, p := range products {
 		log.Println(i+1, "of", len(products), "creating", zeroOrValue(p.Handle))
-		_, err := s.Product.Create(p)
+		_, err := s.Product.Create(context.Background(), p)
 		if err != nil {
 			log.Printf("create product error: %s", err)
 			b, _ := json.MarshalIndent(p, "", "    ")
@@ -353,7 +354,7 @@ func createProductsBulk(s *shopify.Client, products []model.ProductInput) {
 func updateProductsBulk(s *shopify.Client, products []model.ProductInput) {
 	for i, p := range products {
 		log.Println(i+1, "of", len(products), "updating", zeroOrValue(p.Handle))
-		err := s.Product.Update(p)
+		err := s.Product.Update(context.Background(), p)
 		if err != nil {
 			log.Printf("update product error: %s", err)
 			b, _ := json.MarshalIndent(p, "", "    ")
