@@ -12,7 +12,7 @@ import (
 	"github.com/r0busta/go-shopify-graphql-model/v3/graph/model"
 	"github.com/r0busta/go-shopify-graphql/v8"
 	shopifymock "github.com/r0busta/go-shopify-graphql/v8/mock"
-	"github.com/r0busta/go-shopify-import/v2/importer"
+	"github.com/r0busta/go-shopify-import/v3/importer"
 	graphqlmock "github.com/r0busta/graphql/mock"
 	"github.com/stretchr/testify/require"
 )
