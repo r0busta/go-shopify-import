@@ -1,4 +1,4 @@
-module github.com/r0busta/go-shopify-import/v3
+module github.com/r0busta/go-shopify-import/v4
 
 go 1.23
 
