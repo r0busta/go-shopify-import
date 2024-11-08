@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/r0busta/go-shopify-graphql-model/v3/graph/model"
-	"github.com/r0busta/go-shopify-graphql/v8"
+	"github.com/r0busta/go-shopify-graphql-model/v4/graph/model"
+	"github.com/r0busta/go-shopify-graphql/v9"
 )
 
 type variantBulkCreateInput struct {
@@ -100,8 +100,8 @@ func reorderVariantsBulk(s *shopify.Client, bulkReorder []variantBulkReorderInpu
 	}
 }
 
-func mergeVariants(newVariants []model.ProductVariantInput, oldVariants []model.ProductVariantEdge) ([]model.ProductVariantInput, error) {
-	variants := []model.ProductVariantInput{}
+func mergeVariants(newVariants []model.ProductVariantsBulkInput, oldVariants []model.ProductVariantEdge) ([]model.ProductVariantsBulkInput, error) {
+	variants := []model.ProductVariantsBulkInput{}
 
 	oldVariantSKUMap := map[string]*model.ProductVariant{}
 	for _, variant := range oldVariants {
@@ -109,19 +109,19 @@ func mergeVariants(newVariants []model.ProductVariantInput, oldVariants []model.
 			return nil, fmt.Errorf("existing variant without data found")
 		}
 
-		if isZero(variant.Node.Sku) {
+		if isZero(variant.Node.InventoryItem.Sku) {
 			return nil, fmt.Errorf("existing variant without sku found")
 		}
 
-		oldVariantSKUMap[*variant.Node.Sku] = variant.Node
+		oldVariantSKUMap[*variant.Node.InventoryItem.Sku] = variant.Node
 	}
 
 	for _, variant := range newVariants {
-		if isZero(variant.Sku) {
+		if isZero(variant.InventoryItem.Sku) {
 			return nil, fmt.Errorf("new variant without sku found")
 		}
 
-		if existing, ok := oldVariantSKUMap[*variant.Sku]; ok {
+		if existing, ok := oldVariantSKUMap[*variant.InventoryItem.Sku]; ok {
 			newVariant, err := mergeVariantData(variant, existing)
 			if err != nil {
 				return nil, fmt.Errorf("merging variant data: %w", err)
@@ -135,7 +135,7 @@ func mergeVariants(newVariants []model.ProductVariantInput, oldVariants []model.
 	return variants, nil
 }
 
-func mergeVariantData(newData model.ProductVariantInput, oldData *model.ProductVariant) (model.ProductVariantInput, error) {
+func mergeVariantData(newData model.ProductVariantsBulkInput, oldData *model.ProductVariant) (model.ProductVariantsBulkInput, error) {
 	res := newData
 	res.ID = model.NewString(oldData.ID)
 

@@ -9,9 +9,9 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/r0busta/go-shopify-graphql-model/v3/graph/model"
-	"github.com/r0busta/go-shopify-graphql/v8"
-	shopifymock "github.com/r0busta/go-shopify-graphql/v8/mock"
+	"github.com/r0busta/go-shopify-graphql-model/v4/graph/model"
+	"github.com/r0busta/go-shopify-graphql/v9"
+	shopifymock "github.com/r0busta/go-shopify-graphql/v9/mock"
 	"github.com/r0busta/go-shopify-import/v3/importer"
 	graphqlmock "github.com/r0busta/graphql/mock"
 	"github.com/stretchr/testify/require"
@@ -27,8 +27,8 @@ func TestDoOverwriteFalse(t *testing.T) {
 		name                 string
 		args                 args
 		wantExistingProducts []model.Product
-		wantProductCreate    []model.ProductInput
-		wantProductUpdate    []model.ProductInput
+		wantProductCreate    []importer.ProductInput
+		wantProductUpdate    []importer.ProductInput
 		wantErr              bool
 	}{
 		{
@@ -45,15 +45,23 @@ func TestDoOverwriteFalse(t *testing.T) {
 			args: args{
 				data: `[
 					{
-						"handle": "handle-1",
+						"product": {
+							"handle": "handle-1"
+						},
 						"variants": [{
-							"sku": "sku-1-1"
+							"inventoryItem": {
+								"sku": "sku-1-1"
+							}
 						}]
 					},
 					{
-						"handle": "handle-2",
+						"product": {
+							"handle": "handle-2"
+						},
 						"variants": [{
-							"sku": "sku-2-1"
+							"inventoryItem": {
+								"sku": "sku-2-1"
+							}
 						}]
 					}
 				]`,
@@ -61,20 +69,28 @@ func TestDoOverwriteFalse(t *testing.T) {
 				dedupBy:     importer.ComboDedupMode,
 			},
 			wantExistingProducts: []model.Product{},
-			wantProductCreate: []model.ProductInput{
+			wantProductCreate: []importer.ProductInput{
 				{
-					Handle: model.NewString("handle-1"),
-					Variants: []model.ProductVariantInput{
+					Product: model.ProductInput{
+						Handle: model.NewString("handle-1"),
+					},
+					Variants: []model.ProductVariantsBulkInput{
 						{
-							Sku: model.NewString("sku-1-1"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-1-1"),
+							},
 						},
 					},
 				},
 				{
-					Handle: model.NewString("handle-2"),
-					Variants: []model.ProductVariantInput{
+					Product: model.ProductInput{
+						Handle: model.NewString("handle-2"),
+					},
+					Variants: []model.ProductVariantsBulkInput{
 						{
-							Sku: model.NewString("sku-2-1"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-2-1"),
+							},
 						},
 					},
 				},
@@ -85,15 +101,23 @@ func TestDoOverwriteFalse(t *testing.T) {
 			args: args{
 				data: `[
 					{
-						"handle": "handle-1",
+						"product": {
+							"handle": "handle-1"
+						},
 						"variants": [{
-							"sku": "sku-1-1"
+							"inventoryItem": {
+								"sku": "sku-1-1"
+							}
 						}]
 					},
 					{
-						"handle": "handle-2",
+						"product": {
+							"handle": "handle-2"
+						},
 						"variants": [{
-							"sku": "sku-2-1"
+							"inventoryItem": {
+								"sku": "sku-2-1"
+							}
 						}]
 					}
 				]`,
@@ -107,7 +131,9 @@ func TestDoOverwriteFalse(t *testing.T) {
 						Edges: []model.ProductVariantEdge{
 							{
 								Node: &model.ProductVariant{
-									Sku: model.NewString("sku-1-1"),
+									InventoryItem: &model.InventoryItem{
+										Sku: model.NewString("sku-1-1"),
+									},
 								},
 							},
 						},
@@ -119,7 +145,9 @@ func TestDoOverwriteFalse(t *testing.T) {
 						Edges: []model.ProductVariantEdge{
 							{
 								Node: &model.ProductVariant{
-									Sku: model.NewString("sku-2-1"),
+									InventoryItem: &model.InventoryItem{
+										Sku: model.NewString("sku-2-1"),
+									},
 								},
 							},
 						},
@@ -147,12 +175,13 @@ func TestDoOverwriteFalse(t *testing.T) {
 			productService.EXPECT().List(context.Background(), query).Return(tt.wantExistingProducts, nil)
 
 			for _, p := range tt.wantProductCreate {
-				productService.EXPECT().Create(context.Background(), structEq(p)).Return(nil, nil)
+				p := p
+				productService.EXPECT().Create(context.Background(), gomock.Eq(importer.ToCreateInput(p.Product)), gomock.Any()).Return(nil, nil)
 			}
 
 			for _, p := range tt.wantProductUpdate {
 				p := p
-				productService.EXPECT().Update(context.Background(), structEq(p)).Return(nil)
+				productService.EXPECT().Update(context.Background(), gomock.Eq(importer.ToUpdateInput(p.Product)), gomock.Any()).Return(nil)
 			}
 
 			const overwriteProducts = false
@@ -177,8 +206,8 @@ func TestDoOverwiteProducts(t *testing.T) {
 		args                 args
 		importData           string
 		wantExistingProducts []model.Product
-		wantProductCreate    []model.ProductInput
-		wantProductUpdate    []model.ProductInput
+		wantProductCreate    []importer.ProductInput
+		wantProductUpdate    []importer.ProductInput
 		wantErr              bool
 	}{
 		{
@@ -189,25 +218,41 @@ func TestDoOverwiteProducts(t *testing.T) {
 			},
 			importData: `[
 				{
-					"handle": "handle-1",
-					"title": "title-1-new",
+					"product": {
+						"handle": "handle-1",
+						"title": "title-1-new"
+					},
 					"variants": [{
-						"sku": "sku-1-1"
+						"inventoryItem": {
+							"sku": "sku-1-1"
+						}
 					},{
-						"sku": "sku-1-2"
+						"inventoryItem": {
+							"sku": "sku-1-2"
+						}
 					},{
-						"sku": "sku-1-3"
+						"inventoryItem": {
+							"sku": "sku-1-3"
+						}
 					},{
-						"sku": "sku-1-4"
+						"inventoryItem": {
+							"sku": "sku-1-4"
+						}
 					}]
 				},
 				{
-					"handle": "handle-2",
-					"title": "title-2-new",
+					"product": {
+						"handle": "handle-2",
+						"title": "title-2-new"
+					},
 					"variants": [{
-						"sku": "sku-2-1"
+						"inventoryItem": {
+							"sku": "sku-2-1"
+						}
 					},{
-						"sku": "sku-2-2"
+						"inventoryItem": {
+							"sku": "sku-2-2"
+						}
 					}]
 				}
 			]`,
@@ -220,14 +265,18 @@ func TestDoOverwiteProducts(t *testing.T) {
 						Edges: []model.ProductVariantEdge{
 							{
 								Node: &model.ProductVariant{
-									ID:  "variant-1-1",
-									Sku: model.NewString("sku-1-1"),
+									ID: "variant-1-1",
+									InventoryItem: &model.InventoryItem{
+										Sku: model.NewString("sku-1-1"),
+									},
 								},
 							},
 							{
 								Node: &model.ProductVariant{
-									ID:  "variant-1-3",
-									Sku: model.NewString("sku-1-3"),
+									ID: "variant-1-3",
+									InventoryItem: &model.InventoryItem{
+										Sku: model.NewString("sku-1-3"),
+									},
 								},
 							},
 						},
@@ -241,8 +290,10 @@ func TestDoOverwiteProducts(t *testing.T) {
 						Edges: []model.ProductVariantEdge{
 							{
 								Node: &model.ProductVariant{
-									ID:  "variant-2-1",
-									Sku: model.NewString("sku-2-1"),
+									ID: "variant-2-1",
+									InventoryItem: &model.InventoryItem{
+										Sku: model.NewString("sku-2-1"),
+									},
 								},
 							},
 						},
@@ -256,45 +307,63 @@ func TestDoOverwiteProducts(t *testing.T) {
 						Edges: []model.ProductVariantEdge{
 							{
 								Node: &model.ProductVariant{
-									ID:  "variant-3-1",
-									Sku: model.NewString("sku-3-1"),
+									ID: "variant-3-1",
+									InventoryItem: &model.InventoryItem{
+										Sku: model.NewString("sku-3-1"),
+									},
 								},
 							},
 						},
 					},
 				},
 			},
-			wantProductUpdate: []model.ProductInput{
+			wantProductUpdate: []importer.ProductInput{
 				{
-					ID:     model.NewString("product-1"),
-					Handle: model.NewString("handle-1"),
-					Variants: []model.ProductVariantInput{
+					Product: model.ProductInput{
+						ID:     model.NewString("product-1"),
+						Handle: model.NewString("handle-1"),
+					},
+					Variants: []model.ProductVariantsBulkInput{
 						{
-							ID:  model.NewString("variant-1-1"),
-							Sku: model.NewString("sku-1-1"),
+							ID: model.NewString("variant-1-1"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-1-1"),
+							},
 						},
 						{
-							Sku: model.NewString("sku-1-2"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-1-2"),
+							},
 						},
 						{
-							ID:  model.NewString("variant-1-3"),
-							Sku: model.NewString("sku-1-3"),
+							ID: model.NewString("variant-1-3"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-1-3"),
+							},
 						},
 						{
-							Sku: model.NewString("sku-1-4"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-1-4"),
+							},
 						},
 					},
 				},
 				{
-					ID:     model.NewString("product-2"),
-					Handle: model.NewString("handle-2"),
-					Variants: []model.ProductVariantInput{
+					Product: model.ProductInput{
+						ID:     model.NewString("product-2"),
+						Handle: model.NewString("handle-2"),
+					},
+					Variants: []model.ProductVariantsBulkInput{
 						{
-							ID:  model.NewString("variant-2-1"),
-							Sku: model.NewString("sku-2-1"),
+							ID: model.NewString("variant-2-1"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-2-1"),
+							},
 						},
 						{
-							Sku: model.NewString("sku-2-2"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-2-2"),
+							},
 						},
 					},
 				},
@@ -327,8 +396,10 @@ func TestDoOverwiteProducts(t *testing.T) {
 			},
 			importData: `[
 				{
-					"handle": "handle-1",
-					"title": "title-1-new",
+					"product": {
+						"handle": "handle-1",
+						"title": "title-1-new"
+					},
 					"variants": []
 				}
 			]`,
@@ -355,12 +426,13 @@ func TestDoOverwiteProducts(t *testing.T) {
 			productService.EXPECT().List(context.Background(), query).Return(tt.wantExistingProducts, nil)
 
 			for _, p := range tt.wantProductCreate {
-				productService.EXPECT().Create(context.Background(), structEq(p)).Return(nil, nil)
+				p := p
+				productService.EXPECT().Create(context.Background(), gomock.Eq(importer.ToCreateInput(p.Product)), gomock.Any()).Return(nil, nil)
 			}
 
 			for _, p := range tt.wantProductUpdate {
 				p := p
-				productService.EXPECT().Update(context.Background(), structEq(p)).Return(nil)
+				productService.EXPECT().Update(context.Background(), gomock.Eq(importer.ToUpdateInput(p.Product)), gomock.Any()).Return(nil)
 			}
 
 			const overwriteProducts = true
@@ -396,8 +468,8 @@ func TestDoCreateMissingVariants(t *testing.T) {
 		args                      args
 		importData                string
 		wantExistingProducts      []model.Product
-		wantProductCreate         []model.ProductInput
-		wantProductUpdate         []model.ProductInput
+		wantProductCreate         []importer.ProductInput
+		wantProductUpdate         []importer.ProductInput
 		wantVariantBulkCreateVars []map[string]interface{}
 		wantErr                   bool
 	}{
@@ -410,32 +482,48 @@ func TestDoCreateMissingVariants(t *testing.T) {
 			},
 			importData: `[
 				{
-					"handle": "handle-1",
-					"title": "title-1-new",
-					"options": ["Color", "Size"],
+					"product": {
+						"handle": "handle-1",
+						"title": "title-1-new",
+						"options": ["Color", "Size"]
+					},
 					"variants": [{
-						"sku": "sku-1-1",
+						"inventoryItem": {
+							"sku": "sku-1-1"
+						},
 						"options": ["Black", "S"]
 					},{
-						"sku": "sku-1-2",
+						"inventoryItem": {
+							"sku": "sku-1-2"
+						},
 						"options": ["Black", "M"]
 					},{
-						"sku": "sku-1-3",
+						"inventoryItem": {
+							"sku": "sku-1-3"
+						},
 						"options": ["Black", "L"]
 					},{
-						"sku": "sku-1-4",
+						"inventoryItem": {
+							"sku": "sku-1-4"
+						},
 						"options": ["Black", "XL"]
 					}]
 				},
 				{
-					"handle": "handle-2",
-					"title": "title-2-new",
-					"options": ["Color", "Size"],
+					"product": {
+						"handle": "handle-2",
+						"title": "title-2-new",
+						"options": ["Color", "Size"]
+					},
 					"variants": [{
-						"sku": "sku-2-1",
+						"inventoryItem": {
+							"sku": "sku-2-1"
+						},
 						"options": ["Black", "S"]
 					},{
-						"sku": "sku-2-2",
+						"inventoryItem": {
+							"sku": "sku-2-2"
+						},
 						"options": ["Black", "M"]
 					}]
 				}
@@ -457,14 +545,18 @@ func TestDoCreateMissingVariants(t *testing.T) {
 						Edges: []model.ProductVariantEdge{
 							{
 								Node: &model.ProductVariant{
-									ID:  "variant-1-1",
-									Sku: model.NewString("sku-1-1"),
+									ID: "variant-1-1",
+									InventoryItem: &model.InventoryItem{
+										Sku: model.NewString("sku-1-1"),
+									},
 								},
 							},
 							{
 								Node: &model.ProductVariant{
-									ID:  "variant-1-3",
-									Sku: model.NewString("sku-1-3"),
+									ID: "variant-1-3",
+									InventoryItem: &model.InventoryItem{
+										Sku: model.NewString("sku-1-3"),
+									},
 								},
 							},
 						},
@@ -486,8 +578,10 @@ func TestDoCreateMissingVariants(t *testing.T) {
 						Edges: []model.ProductVariantEdge{
 							{
 								Node: &model.ProductVariant{
-									ID:  "variant-2-1",
-									Sku: model.NewString("sku-2-1"),
+									ID: "variant-2-1",
+									InventoryItem: &model.InventoryItem{
+										Sku: model.NewString("sku-2-1"),
+									},
 								},
 							},
 						},
@@ -501,8 +595,10 @@ func TestDoCreateMissingVariants(t *testing.T) {
 						Edges: []model.ProductVariantEdge{
 							{
 								Node: &model.ProductVariant{
-									ID:  "variant-3-1",
-									Sku: model.NewString("sku-3-1"),
+									ID: "variant-3-1",
+									InventoryItem: &model.InventoryItem{
+										Sku: model.NewString("sku-3-1"),
+									},
 								},
 							},
 						},
@@ -514,12 +610,30 @@ func TestDoCreateMissingVariants(t *testing.T) {
 					"productId": "product-1",
 					"variants": []model.ProductVariantsBulkInput{
 						{
-							Sku:     model.NewString("sku-1-2"),
-							Options: []string{"M", "Black"},
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-1-2"),
+							},
+							OptionValues: []model.VariantOptionValueInput{
+								{
+									Name: model.NewString("M"),
+								},
+								{
+									Name: model.NewString("Black"),
+								},
+							},
 						},
 						{
-							Sku:     model.NewString("sku-1-4"),
-							Options: []string{"XL", "Black"},
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-1-4"),
+							},
+							OptionValues: []model.VariantOptionValueInput{
+								{
+									Name: model.NewString("XL"),
+								},
+								{
+									Name: model.NewString("Black"),
+								},
+							},
 						},
 					},
 				},
@@ -527,8 +641,17 @@ func TestDoCreateMissingVariants(t *testing.T) {
 					"productId": "product-2",
 					"variants": []model.ProductVariantsBulkInput{
 						{
-							Sku:     model.NewString("sku-2-2"),
-							Options: []string{"Black", "M"},
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-2-2"),
+							},
+							OptionValues: []model.VariantOptionValueInput{
+								{
+									Name: model.NewString("Black"),
+								},
+								{
+									Name: model.NewString("M"),
+								},
+							},
 						},
 					},
 				},
@@ -555,15 +678,17 @@ func TestDoCreateMissingVariants(t *testing.T) {
 			productService.EXPECT().List(context.Background(), query).Return(tt.wantExistingProducts, nil)
 
 			for _, p := range tt.wantProductCreate {
-				productService.EXPECT().Create(context.Background(), structEq(p)).Return(nil, nil)
+				p := p
+				productService.EXPECT().Create(context.Background(), gomock.Eq(importer.ToCreateInput(p.Product)), gomock.Any()).Return(nil, nil)
 			}
 
 			for _, p := range tt.wantProductUpdate {
 				p := p
-				productService.EXPECT().Update(context.Background(), structEq(p)).Return(nil)
+				productService.EXPECT().Update(context.Background(), gomock.Eq(importer.ToUpdateInput(p.Product)), gomock.Any()).Return(nil)
 			}
 
 			for _, v := range tt.wantVariantBulkCreateVars {
+				v := v
 				gql.EXPECT().Mutate(gomock.Any(), gomock.Any(), structEq(v)).Return(nil)
 			}
 
@@ -585,8 +710,8 @@ func newJSONDecoder() jsonDecoder {
 	return jsonDecoder{}
 }
 
-func (j jsonDecoder) Decode(data io.Reader) ([]model.ProductInput, error) {
-	products := []model.ProductInput{}
+func (j jsonDecoder) Decode(data io.Reader) ([]importer.ProductInput, error) {
+	products := []importer.ProductInput{}
 	err := json.NewDecoder(data).Decode(&products)
 	if err != nil {
 		return nil, fmt.Errorf("decoding: %w", err)
