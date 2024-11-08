@@ -3,31 +3,35 @@ package importer
 import (
 	"testing"
 
-	"github.com/r0busta/go-shopify-graphql-model/v3/graph/model"
+	"github.com/r0busta/go-shopify-graphql-model/v4/graph/model"
 	"github.com/stretchr/testify/assert"
 )
 
 func Test_dedupProductsByHandle_overwrite(t *testing.T) {
 	type args struct {
-		new []model.ProductInput
+		new []ProductInput
 		old []model.Product
 	}
 	tests := []struct {
 		name         string
 		args         args
-		wantToCreate []model.ProductInput
-		wantToUpdate []model.ProductInput
+		wantToCreate []ProductInput
+		wantToUpdate []ProductInput
 		wantError    bool
 	}{
 		{
 			name: "no products matching by handle — a product will be created",
 			args: args{
-				new: []model.ProductInput{
+				new: []ProductInput{
 					{
-						Handle: model.NewString("handle-1"),
-						Variants: []model.ProductVariantInput{
+						Product: model.ProductInput{
+							Handle: model.NewString("handle-1"),
+						},
+						Variants: []model.ProductVariantsBulkInput{
 							{
-								Sku: model.NewString("sku-1"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-1"),
+								},
 							},
 						},
 					},
@@ -40,7 +44,9 @@ func Test_dedupProductsByHandle_overwrite(t *testing.T) {
 							Edges: []model.ProductVariantEdge{
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-2"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-2"),
+										},
 									},
 								},
 							},
@@ -48,27 +54,35 @@ func Test_dedupProductsByHandle_overwrite(t *testing.T) {
 					},
 				},
 			},
-			wantToCreate: []model.ProductInput{
+			wantToCreate: []ProductInput{
 				{
-					Handle: model.NewString("handle-1"),
-					Variants: []model.ProductVariantInput{
+					Product: model.ProductInput{
+						Handle: model.NewString("handle-1"),
+					},
+					Variants: []model.ProductVariantsBulkInput{
 						{
-							Sku: model.NewString("sku-1"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-1"),
+							},
 						},
 					},
 				},
 			},
-			wantToUpdate: []model.ProductInput{},
+			wantToUpdate: []ProductInput{},
 		},
 		{
 			name: "products match by handle will be overwritten",
 			args: args{
-				new: []model.ProductInput{
+				new: []ProductInput{
 					{
-						Handle: model.NewString("handle-1"),
-						Variants: []model.ProductVariantInput{
+						Product: model.ProductInput{
+							Handle: model.NewString("handle-1"),
+						},
+						Variants: []model.ProductVariantsBulkInput{
 							{
-								Sku: model.NewString("sku-1"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-1"),
+								},
 							},
 						},
 					},
@@ -81,7 +95,9 @@ func Test_dedupProductsByHandle_overwrite(t *testing.T) {
 							Edges: []model.ProductVariantEdge{
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-2"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-2"),
+										},
 									},
 								},
 							},
@@ -89,14 +105,18 @@ func Test_dedupProductsByHandle_overwrite(t *testing.T) {
 					},
 				},
 			},
-			wantToCreate: []model.ProductInput{},
-			wantToUpdate: []model.ProductInput{
+			wantToCreate: []ProductInput{},
+			wantToUpdate: []ProductInput{
 				{
-					ID:     model.NewString("1"),
-					Handle: model.NewString("handle-1"),
-					Variants: []model.ProductVariantInput{
+					Product: model.ProductInput{
+						ID:     model.NewString("1"),
+						Handle: model.NewString("handle-1"),
+					},
+					Variants: []model.ProductVariantsBulkInput{
 						{
-							Sku: model.NewString("sku-1"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-1"),
+							},
 						},
 					},
 				},
@@ -105,20 +125,28 @@ func Test_dedupProductsByHandle_overwrite(t *testing.T) {
 		{
 			name: "both create and overwrite cases",
 			args: args{
-				new: []model.ProductInput{
+				new: []ProductInput{
 					{
-						Handle: model.NewString("handle-2"),
-						Variants: []model.ProductVariantInput{
+						Product: model.ProductInput{
+							Handle: model.NewString("handle-2"),
+						},
+						Variants: []model.ProductVariantsBulkInput{
 							{
-								Sku: model.NewString("sku-2"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-2"),
+								},
 							},
 						},
 					},
 					{
-						Handle: model.NewString("handle-1"),
-						Variants: []model.ProductVariantInput{
+						Product: model.ProductInput{
+							Handle: model.NewString("handle-1"),
+						},
+						Variants: []model.ProductVariantsBulkInput{
 							{
-								Sku: model.NewString("sku-1"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-1"),
+								},
 							},
 						},
 					},
@@ -131,7 +159,9 @@ func Test_dedupProductsByHandle_overwrite(t *testing.T) {
 							Edges: []model.ProductVariantEdge{
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-3"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-3"),
+										},
 									},
 								},
 							},
@@ -139,23 +169,31 @@ func Test_dedupProductsByHandle_overwrite(t *testing.T) {
 					},
 				},
 			},
-			wantToCreate: []model.ProductInput{
+			wantToCreate: []ProductInput{
 				{
-					Handle: model.NewString("handle-2"),
-					Variants: []model.ProductVariantInput{
+					Product: model.ProductInput{
+						Handle: model.NewString("handle-2"),
+					},
+					Variants: []model.ProductVariantsBulkInput{
 						{
-							Sku: model.NewString("sku-2"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-2"),
+							},
 						},
 					},
 				},
 			},
-			wantToUpdate: []model.ProductInput{
+			wantToUpdate: []ProductInput{
 				{
-					ID:     model.NewString("1"),
-					Handle: model.NewString("handle-1"),
-					Variants: []model.ProductVariantInput{
+					Product: model.ProductInput{
+						ID:     model.NewString("1"),
+						Handle: model.NewString("handle-1"),
+					},
+					Variants: []model.ProductVariantsBulkInput{
 						{
-							Sku: model.NewString("sku-1"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-1"),
+							},
 						},
 					},
 				},
@@ -164,15 +202,21 @@ func Test_dedupProductsByHandle_overwrite(t *testing.T) {
 		{
 			name: "matches by the variants' set of sku too",
 			args: args{
-				new: []model.ProductInput{
+				new: []ProductInput{
 					{
-						Handle: model.NewString("handle-1-new"),
-						Variants: []model.ProductVariantInput{
+						Product: model.ProductInput{
+							Handle: model.NewString("handle-1-new"),
+						},
+						Variants: []model.ProductVariantsBulkInput{
 							{
-								Sku: model.NewString("sku-1"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-1"),
+								},
 							},
 							{
-								Sku: model.NewString("sku-2"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-2"),
+								},
 							},
 						},
 					},
@@ -185,14 +229,18 @@ func Test_dedupProductsByHandle_overwrite(t *testing.T) {
 							Edges: []model.ProductVariantEdge{
 								{
 									Node: &model.ProductVariant{
-										ID:  "variant-1",
-										Sku: model.NewString("sku-1"),
+										ID: "variant-1",
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-1"),
+										},
 									},
 								},
 								{
 									Node: &model.ProductVariant{
-										ID:  "variant-2",
-										Sku: model.NewString("sku-2"),
+										ID: "variant-2",
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-2"),
+										},
 									},
 								},
 							},
@@ -200,19 +248,25 @@ func Test_dedupProductsByHandle_overwrite(t *testing.T) {
 					},
 				},
 			},
-			wantToCreate: []model.ProductInput{},
-			wantToUpdate: []model.ProductInput{
+			wantToCreate: []ProductInput{},
+			wantToUpdate: []ProductInput{
 				{
-					ID:     model.NewString("1"),
-					Handle: model.NewString("handle-1"),
-					Variants: []model.ProductVariantInput{
+					Product: model.ProductInput{
+						ID:     model.NewString("1"),
+						Handle: model.NewString("handle-1"),
+					},
+					Variants: []model.ProductVariantsBulkInput{
 						{
-							ID:  model.NewString("variant-1"),
-							Sku: model.NewString("sku-1"),
+							ID: model.NewString("variant-1"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-1"),
+							},
 						},
 						{
-							ID:  model.NewString("variant-2"),
-							Sku: model.NewString("sku-2"),
+							ID: model.NewString("variant-2"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-2"),
+							},
 						},
 					},
 				},
@@ -242,26 +296,30 @@ func Test_dedupProductsByHandle_overwrite(t *testing.T) {
 
 func Test_dedupProductsByHandle_do_not_overwrite_and_do_not_create_variants(t *testing.T) {
 	type args struct {
-		new []model.ProductInput
+		new []ProductInput
 		old []model.Product
 	}
 	tests := []struct {
 		name                 string
 		args                 args
-		wantToCreate         []model.ProductInput
-		wantToUpdate         []model.ProductInput
+		wantToCreate         []ProductInput
+		wantToUpdate         []ProductInput
 		wantToCreateVariants []variantBulkCreateInput
 		wantError            bool
 	}{
 		{
 			name: "no products matching by handle — a product will be created",
 			args: args{
-				new: []model.ProductInput{
+				new: []ProductInput{
 					{
-						Handle: model.NewString("handle-1"),
-						Variants: []model.ProductVariantInput{
+						Product: model.ProductInput{
+							Handle: model.NewString("handle-1"),
+						},
+						Variants: []model.ProductVariantsBulkInput{
 							{
-								Sku: model.NewString("sku-1"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-1"),
+								},
 							},
 						},
 					},
@@ -274,7 +332,9 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_do_not_create_variants(t *t
 							Edges: []model.ProductVariantEdge{
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-2"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-2"),
+										},
 									},
 								},
 							},
@@ -282,28 +342,36 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_do_not_create_variants(t *t
 					},
 				},
 			},
-			wantToCreate: []model.ProductInput{
+			wantToCreate: []ProductInput{
 				{
-					Handle: model.NewString("handle-1"),
-					Variants: []model.ProductVariantInput{
+					Product: model.ProductInput{
+						Handle: model.NewString("handle-1"),
+					},
+					Variants: []model.ProductVariantsBulkInput{
 						{
-							Sku: model.NewString("sku-1"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-1"),
+							},
 						},
 					},
 				},
 			},
-			wantToUpdate:         []model.ProductInput{},
+			wantToUpdate:         []ProductInput{},
 			wantToCreateVariants: []variantBulkCreateInput{},
 		},
 		{
 			name: "products match by handle won't be overwritten",
 			args: args{
-				new: []model.ProductInput{
+				new: []ProductInput{
 					{
-						Handle: model.NewString("handle-1"),
-						Variants: []model.ProductVariantInput{
+						Product: model.ProductInput{
+							Handle: model.NewString("handle-1"),
+						},
+						Variants: []model.ProductVariantsBulkInput{
 							{
-								Sku: model.NewString("sku-1"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-1"),
+								},
 							},
 						},
 					},
@@ -316,7 +384,9 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_do_not_create_variants(t *t
 							Edges: []model.ProductVariantEdge{
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-2"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-2"),
+										},
 									},
 								},
 							},
@@ -324,27 +394,35 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_do_not_create_variants(t *t
 					},
 				},
 			},
-			wantToCreate:         []model.ProductInput{},
-			wantToUpdate:         []model.ProductInput{},
+			wantToCreate:         []ProductInput{},
+			wantToUpdate:         []ProductInput{},
 			wantToCreateVariants: []variantBulkCreateInput{},
 		},
 		{
 			name: "both create and don't overwrite cases",
 			args: args{
-				new: []model.ProductInput{
+				new: []ProductInput{
 					{
-						Handle: model.NewString("handle-2"),
-						Variants: []model.ProductVariantInput{
+						Product: model.ProductInput{
+							Handle: model.NewString("handle-2"),
+						},
+						Variants: []model.ProductVariantsBulkInput{
 							{
-								Sku: model.NewString("sku-2"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-2"),
+								},
 							},
 						},
 					},
 					{
-						Handle: model.NewString("handle-1"),
-						Variants: []model.ProductVariantInput{
+						Product: model.ProductInput{
+							Handle: model.NewString("handle-1"),
+						},
+						Variants: []model.ProductVariantsBulkInput{
 							{
-								Sku: model.NewString("sku-1"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-1"),
+								},
 							},
 						},
 					},
@@ -357,7 +435,9 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_do_not_create_variants(t *t
 							Edges: []model.ProductVariantEdge{
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-3"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-3"),
+										},
 									},
 								},
 							},
@@ -365,31 +445,41 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_do_not_create_variants(t *t
 					},
 				},
 			},
-			wantToCreate: []model.ProductInput{
+			wantToCreate: []ProductInput{
 				{
-					Handle: model.NewString("handle-2"),
-					Variants: []model.ProductVariantInput{
+					Product: model.ProductInput{
+						Handle: model.NewString("handle-2"),
+					},
+					Variants: []model.ProductVariantsBulkInput{
 						{
-							Sku: model.NewString("sku-2"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-2"),
+							},
 						},
 					},
 				},
 			},
-			wantToUpdate:         []model.ProductInput{},
+			wantToUpdate:         []ProductInput{},
 			wantToCreateVariants: []variantBulkCreateInput{},
 		},
 		{
 			name: "matches by the variants' full set of sku",
 			args: args{
-				new: []model.ProductInput{
+				new: []ProductInput{
 					{
-						Handle: model.NewString("handle-1-new"),
-						Variants: []model.ProductVariantInput{
+						Product: model.ProductInput{
+							Handle: model.NewString("handle-1-new"),
+						},
+						Variants: []model.ProductVariantsBulkInput{
 							{
-								Sku: model.NewString("sku-1"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-1"),
+								},
 							},
 							{
-								Sku: model.NewString("sku-2"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-2"),
+								},
 							},
 						},
 					},
@@ -402,12 +492,16 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_do_not_create_variants(t *t
 							Edges: []model.ProductVariantEdge{
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-1"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-1"),
+										},
 									},
 								},
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-2"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-2"),
+										},
 									},
 								},
 							},
@@ -415,28 +509,38 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_do_not_create_variants(t *t
 					},
 				},
 			},
-			wantToCreate:         []model.ProductInput{},
-			wantToUpdate:         []model.ProductInput{},
+			wantToCreate:         []ProductInput{},
+			wantToUpdate:         []ProductInput{},
 			wantToCreateVariants: []variantBulkCreateInput{},
 		},
 		{
 			name: "when for a new handle the new set matches by the variants' set of sku partially, the rest won't be created",
 			args: args{
-				new: []model.ProductInput{
+				new: []ProductInput{
 					{
-						Handle: model.NewString("handle-1-new"),
-						Variants: []model.ProductVariantInput{
+						Product: model.ProductInput{
+							Handle: model.NewString("handle-1-new"),
+						},
+						Variants: []model.ProductVariantsBulkInput{
 							{
-								Sku: model.NewString("sku-1"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-1"),
+								},
 							},
 							{
-								Sku: model.NewString("sku-2"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-2"),
+								},
 							},
 							{
-								Sku: model.NewString("sku-3"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-3"),
+								},
 							},
 							{
-								Sku: model.NewString("sku-4"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-4"),
+								},
 							},
 						},
 					},
@@ -449,12 +553,16 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_do_not_create_variants(t *t
 							Edges: []model.ProductVariantEdge{
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-1"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-1"),
+										},
 									},
 								},
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-2"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-2"),
+										},
 									},
 								},
 							},
@@ -462,8 +570,8 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_do_not_create_variants(t *t
 					},
 				},
 			},
-			wantToCreate:         []model.ProductInput{},
-			wantToUpdate:         []model.ProductInput{},
+			wantToCreate:         []ProductInput{},
+			wantToUpdate:         []ProductInput{},
 			wantToCreateVariants: []variantBulkCreateInput{},
 		},
 	}
@@ -491,26 +599,30 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_do_not_create_variants(t *t
 
 func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *testing.T) {
 	type args struct {
-		new []model.ProductInput
+		new []ProductInput
 		old []model.Product
 	}
 	tests := []struct {
 		name                 string
 		args                 args
-		wantToCreate         []model.ProductInput
-		wantToUpdate         []model.ProductInput
+		wantToCreate         []ProductInput
+		wantToUpdate         []ProductInput
 		wantToCreateVariants []variantBulkCreateInput
 		wantError            bool
 	}{
 		{
 			name: "no products matching by handle — a product will be created",
 			args: args{
-				new: []model.ProductInput{
+				new: []ProductInput{
 					{
-						Handle: model.NewString("handle-1"),
-						Variants: []model.ProductVariantInput{
+						Product: model.ProductInput{
+							Handle: model.NewString("handle-1"),
+						},
+						Variants: []model.ProductVariantsBulkInput{
 							{
-								Sku: model.NewString("sku-1"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-1"),
+								},
 							},
 						},
 					},
@@ -523,7 +635,9 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 							Edges: []model.ProductVariantEdge{
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-2"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-2"),
+										},
 									},
 								},
 							},
@@ -531,36 +645,48 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 					},
 				},
 			},
-			wantToCreate: []model.ProductInput{
+			wantToCreate: []ProductInput{
 				{
-					Handle: model.NewString("handle-1"),
-					Variants: []model.ProductVariantInput{
+					Product: model.ProductInput{
+						Handle: model.NewString("handle-1"),
+					},
+					Variants: []model.ProductVariantsBulkInput{
 						{
-							Sku: model.NewString("sku-1"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-1"),
+							},
 						},
 					},
 				},
 			},
-			wantToUpdate:         []model.ProductInput{},
+			wantToUpdate:         []ProductInput{},
 			wantToCreateVariants: []variantBulkCreateInput{},
 		},
 		{
 			name: "both create and create missing variants cases",
 			args: args{
-				new: []model.ProductInput{
+				new: []ProductInput{
 					{
-						Handle: model.NewString("handle-2"),
-						Variants: []model.ProductVariantInput{
+						Product: model.ProductInput{
+							Handle: model.NewString("handle-2"),
+						},
+						Variants: []model.ProductVariantsBulkInput{
 							{
-								Sku: model.NewString("sku-2"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-2"),
+								},
 							},
 						},
 					},
 					{
-						Handle: model.NewString("handle-1"),
-						Variants: []model.ProductVariantInput{
+						Product: model.ProductInput{
+							Handle: model.NewString("handle-1"),
+						},
+						Variants: []model.ProductVariantsBulkInput{
 							{
-								Sku: model.NewString("sku-1"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-1"),
+								},
 							},
 						},
 					},
@@ -573,7 +699,9 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 							Edges: []model.ProductVariantEdge{
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-3"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-3"),
+										},
 									},
 								},
 							},
@@ -581,24 +709,30 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 					},
 				},
 			},
-			wantToCreate: []model.ProductInput{
+			wantToCreate: []ProductInput{
 				{
-					Handle: model.NewString("handle-2"),
-					Variants: []model.ProductVariantInput{
+					Product: model.ProductInput{
+						Handle: model.NewString("handle-2"),
+					},
+					Variants: []model.ProductVariantsBulkInput{
 						{
-							Sku: model.NewString("sku-2"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-2"),
+							},
 						},
 					},
 				},
 			},
-			wantToUpdate: []model.ProductInput{},
+			wantToUpdate: []ProductInput{},
 			wantToCreateVariants: []variantBulkCreateInput{
 				{
 					ProductID:     "1",
 					ProductHandle: "handle-1",
 					ProductVariantsBulkInput: []model.ProductVariantsBulkInput{
 						{
-							Sku: model.NewString("sku-1"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-1"),
+							},
 						},
 					},
 				},
@@ -607,15 +741,21 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 		{
 			name: "matches by the variants' full set of sku",
 			args: args{
-				new: []model.ProductInput{
+				new: []ProductInput{
 					{
-						Handle: model.NewString("handle-1-new"),
-						Variants: []model.ProductVariantInput{
+						Product: model.ProductInput{
+							Handle: model.NewString("handle-1-new"),
+						},
+						Variants: []model.ProductVariantsBulkInput{
 							{
-								Sku: model.NewString("sku-1"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-1"),
+								},
 							},
 							{
-								Sku: model.NewString("sku-2"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-2"),
+								},
 							},
 						},
 					},
@@ -628,12 +768,16 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 							Edges: []model.ProductVariantEdge{
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-1"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-1"),
+										},
 									},
 								},
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-2"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-2"),
+										},
 									},
 								},
 							},
@@ -641,28 +785,38 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 					},
 				},
 			},
-			wantToCreate:         []model.ProductInput{},
-			wantToUpdate:         []model.ProductInput{},
+			wantToCreate:         []ProductInput{},
+			wantToUpdate:         []ProductInput{},
 			wantToCreateVariants: []variantBulkCreateInput{},
 		},
 		{
 			name: "when for a new handle the new set matches by the variants' set of sku partially, the rest will be created",
 			args: args{
-				new: []model.ProductInput{
+				new: []ProductInput{
 					{
-						Handle: model.NewString("handle-1-new"),
-						Variants: []model.ProductVariantInput{
+						Product: model.ProductInput{
+							Handle: model.NewString("handle-1-new"),
+						},
+						Variants: []model.ProductVariantsBulkInput{
 							{
-								Sku: model.NewString("sku-1"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-1"),
+								},
 							},
 							{
-								Sku: model.NewString("sku-2"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-2"),
+								},
 							},
 							{
-								Sku: model.NewString("sku-3"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-3"),
+								},
 							},
 							{
-								Sku: model.NewString("sku-4"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-4"),
+								},
 							},
 						},
 					},
@@ -675,12 +829,16 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 							Edges: []model.ProductVariantEdge{
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-1"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-1"),
+										},
 									},
 								},
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-2"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-2"),
+										},
 									},
 								},
 							},
@@ -688,18 +846,22 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 					},
 				},
 			},
-			wantToCreate: []model.ProductInput{},
-			wantToUpdate: []model.ProductInput{},
+			wantToCreate: []ProductInput{},
+			wantToUpdate: []ProductInput{},
 			wantToCreateVariants: []variantBulkCreateInput{
 				{
 					ProductID:     "1",
 					ProductHandle: "handle-1",
 					ProductVariantsBulkInput: []model.ProductVariantsBulkInput{
 						{
-							Sku: model.NewString("sku-3"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-3"),
+							},
 						},
 						{
-							Sku: model.NewString("sku-4"),
+							InventoryItem: &model.InventoryItemInput{
+								Sku: model.NewString("sku-4"),
+							},
 						},
 					},
 				},
@@ -708,16 +870,22 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 		{
 			name: "when the variant to be created duplicates existing variant, an error returned",
 			args: args{
-				new: []model.ProductInput{
+				new: []ProductInput{
 					{
 						// new product with only some of the SKUs matching
-						Handle: model.NewString("handle-2-new"),
-						Variants: []model.ProductVariantInput{
+						Product: model.ProductInput{
+							Handle: model.NewString("handle-2-new"),
+						},
+						Variants: []model.ProductVariantsBulkInput{
 							{
-								Sku: model.NewString("sku-2-1"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-2-1"),
+								},
 							},
 							{
-								Sku: model.NewString("sku-2-3"),
+								InventoryItem: &model.InventoryItemInput{
+									Sku: model.NewString("sku-2-3"),
+								},
 							},
 						},
 					},
@@ -730,7 +898,9 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 							Edges: []model.ProductVariantEdge{
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-2-3"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-2-3"),
+										},
 									},
 								},
 							},
@@ -743,12 +913,16 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 							Edges: []model.ProductVariantEdge{
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-2-1"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-2-1"),
+										},
 									},
 								},
 								{
 									Node: &model.ProductVariant{
-										Sku: model.NewString("sku-2-2"),
+										InventoryItem: &model.InventoryItem{
+											Sku: model.NewString("sku-2-2"),
+										},
 									},
 								},
 							},
@@ -784,9 +958,9 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 // {
 // 	name: "SKUs the same — the product will be updated",
 // 	args: args{
-// 		new: []model.ProductInput{
+// 		new: []ProductInput{
 // 			{
-// 				Variants: []model.ProductVariantInput{
+// 				Variants: []model.ProductVariantsBulkInput{
 // 					{
 // 						Sku: model.NewString("sku-1"),
 // 					},
@@ -841,11 +1015,11 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 // 		},
 // 		overwrite: true,
 // 	},
-// 	wantToCreate: []model.ProductInput{},
+// 	wantToCreate: []ProductInput{},
 // 	wantToUpdate: []model.ProductInput{
 // 		{
 // 			ID: model.NewString("1"),
-// 			Variants: []model.ProductVariantInput{{
+// 			Variants: []model.ProductVariantsBulkInput{{
 // 				Sku: model.NewString("sku-1"),
 // 			}, {
 // 				Sku: model.NewString("sku-2"),
@@ -866,9 +1040,9 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 // {
 // 	name: "SKUs match partially — the product will be updated",
 // 	args: args{
-// 		new: []model.ProductInput{
+// 		new: []ProductInput{
 // 			{
-// 				Variants: []model.ProductVariantInput{
+// 				Variants: []model.ProductVariantsBulkInput{
 // 					{
 // 						Sku: model.NewString("sku-3"),
 // 					},
@@ -899,11 +1073,11 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 // 		},
 // 		overwrite: true,
 // 	},
-// 	wantToCreate: []model.ProductInput{},
-// 	wantToUpdate: []model.ProductInput{
+// 	wantToCreate: []ProductInput{},
+// 	wantToUpdate: []ProductInput{
 // 		{
 // 			ID: model.NewString("1"),
-// 			Variants: []model.ProductVariantInput{{
+// 			Variants: []model.ProductVariantsBulkInput{{
 // 				Sku: model.NewString("sku-3"),
 // 			}, {
 // 				Sku: model.NewString("sku-2"),
@@ -914,9 +1088,9 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 // {
 // 	name: "SKUs match and overwrite is false — the product will be skipped",
 // 	args: args{
-// 		new: []model.ProductInput{
+// 		new: []ProductInput{
 // 			{
-// 				Variants: []model.ProductVariantInput{
+// 				Variants: []model.ProductVariantsBulkInput{
 // 					{
 // 						Sku: model.NewString("sku-3"),
 // 					},
@@ -947,6 +1121,6 @@ func Test_dedupProductsByHandle_do_not_overwrite_and_create_missing_variants(t *
 // 		},
 // 		overwrite: false,
 // 	},
-// 	wantToCreate: []model.ProductInput{},
-// 	wantToUpdate: []model.ProductInput{},
+// 	wantToCreate: []ProductInput{},
+// 	wantToUpdate: []ProductInput{},
 // },
