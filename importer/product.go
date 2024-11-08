@@ -268,11 +268,6 @@ func getMissingVariants(newProduct ProductInput, oldProduct model.Product) *vari
 		options := adjustOptionsOrder(newVariant.OptionValues, newProduct.Product.ProductOptions, oldProduct.Options)
 
 		productVariantsBulkInput = append(productVariantsBulkInput, model.ProductVariantsBulkInput{
-			// HarmonizedSystemCode: newVariant.HarmonizedSystemCode,
-			// RequiresShipping:     newVariant.RequiresShipping,
-			// Sku:                  newVariant.Sku,
-			// Weight:               newVariant.Weight,
-			// WeightUnit:           newVariant.WeightUnit,
 			ID:                  nil,
 			Barcode:             newVariant.Barcode,
 			CompareAtPrice:      newVariant.CompareAtPrice,

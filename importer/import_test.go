@@ -485,28 +485,50 @@ func TestDoCreateMissingVariants(t *testing.T) {
 					"product": {
 						"handle": "handle-1",
 						"title": "title-1-new",
-						"options": ["Color", "Size"]
+						"productOptions": [
+							{
+								"name": "Color"
+							},{
+								"name": "Size"
+							}
+						]
 					},
 					"variants": [{
 						"inventoryItem": {
 							"sku": "sku-1-1"
 						},
-						"options": ["Black", "S"]
+						"optionValues": [{
+							"name": "Black"
+						},{
+							"name": "S"
+						}]
 					},{
 						"inventoryItem": {
 							"sku": "sku-1-2"
 						},
-						"options": ["Black", "M"]
+						"optionValues": [{
+							"name": "Black"
+						},{
+							"name": "M"
+						}]
 					},{
 						"inventoryItem": {
 							"sku": "sku-1-3"
 						},
-						"options": ["Black", "L"]
+						"optionValues": [{
+							"name": "Black"
+						},{
+							"name": "L"
+						}]
 					},{
 						"inventoryItem": {
 							"sku": "sku-1-4"
 						},
-						"options": ["Black", "XL"]
+						"optionValues": [{
+							"name": "Black"
+						},{
+							"name": "XL"
+						}]
 					}]
 				},
 				{
@@ -519,12 +541,20 @@ func TestDoCreateMissingVariants(t *testing.T) {
 						"inventoryItem": {
 							"sku": "sku-2-1"
 						},
-						"options": ["Black", "S"]
+						"optionValues": [{
+							"name": "Black"
+						},{
+							"name": "S"
+						}]
 					},{
 						"inventoryItem": {
 							"sku": "sku-2-2"
 						},
-						"options": ["Black", "M"]
+						"optionValues": [{
+							"name": "Black"
+						},{
+							"name": "M"
+						}]
 					}]
 				}
 			]`,
@@ -689,7 +719,11 @@ func TestDoCreateMissingVariants(t *testing.T) {
 
 			for _, v := range tt.wantVariantBulkCreateVars {
 				v := v
-				gql.EXPECT().Mutate(gomock.Any(), gomock.Any(), structEq(v)).Return(nil)
+				productService.EXPECT().VariantsBulkCreate(
+					gomock.Any(),
+					gomock.Eq(v["productId"]),
+					gomock.Eq(v["variants"]), model.ProductVariantsBulkCreateStrategyRemoveStandaloneVariant,
+				).Return(nil)
 			}
 
 			const overwriteProducts = false

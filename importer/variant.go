@@ -53,39 +53,19 @@ type ProductVariantsBulkCreateResult struct {
 	UserErrors []model.UserError `json:"userErrors,omitempty"`
 }
 
-func VariantsBulkCreate(s *shopify.Client, id string, input []model.ProductVariantsBulkInput) ([]VariantsBulkCreateVariantResult, error) {
-	m := MutationProductVariantsBulkCreate{}
-
-	vars := map[string]interface{}{
-		"productId": id,
-		"variants":  input,
-	}
-	err := s.GraphQLClient().Mutate(context.Background(), &m, vars)
-	if err != nil {
-		return nil, fmt.Errorf("mutation: %w", err)
-	}
-
-	if len(m.ProductVariantsBulkCreateResult.UserErrors) > 0 {
-		return nil, fmt.Errorf("%+v", m.ProductVariantsBulkCreateResult.UserErrors)
-	}
-
-	return m.ProductVariantsBulkCreateResult.ProductVariants, nil
-}
-
-func createVariantsBulk(s *shopify.Client, bulkCreate []variantBulkCreateInput) []VariantsBulkCreateVariantResult {
-	res := []VariantsBulkCreateVariantResult{}
+func createVariantsBulk(s *shopify.Client, bulkCreate []variantBulkCreateInput) error {
 	for i, p := range bulkCreate {
 		log.Println(i+1, "of", len(bulkCreate), "adding variants into the product", p.ProductID)
-		createdProductVariants, err := VariantsBulkCreate(s, p.ProductID, p.ProductVariantsBulkInput)
+		err := s.Product.VariantsBulkCreate(context.Background(), p.ProductID, p.ProductVariantsBulkInput, model.ProductVariantsBulkCreateStrategyRemoveStandaloneVariant)
 		if err != nil {
 			log.Printf("bulk create variants: %s", err)
 			b, _ := json.MarshalIndent(p, "", "    ")
 			log.Println(string(b))
+			return err
 		}
-		res = append(res, createdProductVariants...)
 	}
 
-	return res
+	return nil
 }
 
 func reorderVariantsBulk(s *shopify.Client, bulkReorder []variantBulkReorderInput) {

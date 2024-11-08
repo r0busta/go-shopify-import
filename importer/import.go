@@ -50,7 +50,10 @@ func Do(shopClient *shopify.Client, decoder Decoder, importData io.Reader, suppl
 	updateProductsBulk(shopClient, productsUpdate)
 
 	log.Printf("updating variants: %d to be created", len(variantsCreate))
-	createVariantsBulk(shopClient, variantsCreate)
+	err = createVariantsBulk(shopClient, variantsCreate)
+	if err != nil {
+		return fmt.Errorf("creating variants: %s", err)
+	}
 
 	return nil
 }
