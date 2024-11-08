@@ -324,6 +324,10 @@ func adjustOptionsOrder(selectedOptions []model.VariantOptionValueInput, newOpti
 		log.Panicln("selected options length is not equal to new options length")
 	}
 
+	if len(newOptions) == 0 {
+		return nil
+	}
+
 	type positionStruct struct {
 		position int
 		id       string
