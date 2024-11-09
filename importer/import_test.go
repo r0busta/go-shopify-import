@@ -535,7 +535,13 @@ func TestDoCreateMissingVariants(t *testing.T) {
 					"product": {
 						"handle": "handle-2",
 						"title": "title-2-new",
-						"options": ["Color", "Size"]
+						"productOptions": [
+							{
+								"name": "Color"
+							},{
+								"name": "Size"
+							}
+						]
 					},
 					"variants": [{
 						"inventoryItem": {
@@ -565,9 +571,11 @@ func TestDoCreateMissingVariants(t *testing.T) {
 					Title:  "title-1",
 					Options: []model.ProductOption{
 						{
+							ID:   "option-1",
 							Name: "Size",
 						},
 						{
+							ID:   "option-2",
 							Name: "Color",
 						},
 					},
@@ -598,9 +606,11 @@ func TestDoCreateMissingVariants(t *testing.T) {
 					Title:  "title-2",
 					Options: []model.ProductOption{
 						{
+							ID:   "option-2",
 							Name: "Color",
 						},
 						{
+							ID:   "option-1",
 							Name: "Size",
 						},
 					},
@@ -645,9 +655,11 @@ func TestDoCreateMissingVariants(t *testing.T) {
 							},
 							OptionValues: []model.VariantOptionValueInput{
 								{
+									ID:   model.NewString("option-1"),
 									Name: model.NewString("M"),
 								},
 								{
+									ID:   model.NewString("option-2"),
 									Name: model.NewString("Black"),
 								},
 							},
@@ -658,9 +670,11 @@ func TestDoCreateMissingVariants(t *testing.T) {
 							},
 							OptionValues: []model.VariantOptionValueInput{
 								{
+									ID:   model.NewString("option-1"),
 									Name: model.NewString("XL"),
 								},
 								{
+									ID:   model.NewString("option-2"),
 									Name: model.NewString("Black"),
 								},
 							},
@@ -676,9 +690,11 @@ func TestDoCreateMissingVariants(t *testing.T) {
 							},
 							OptionValues: []model.VariantOptionValueInput{
 								{
+									ID:   model.NewString("option-2"),
 									Name: model.NewString("Black"),
 								},
 								{
+									ID:   model.NewString("option-1"),
 									Name: model.NewString("M"),
 								},
 							},
@@ -718,11 +734,11 @@ func TestDoCreateMissingVariants(t *testing.T) {
 			}
 
 			for _, v := range tt.wantVariantBulkCreateVars {
-				v := v
 				productService.EXPECT().VariantsBulkCreate(
 					gomock.Any(),
-					gomock.Eq(v["productId"]),
-					gomock.Eq(v["variants"]), model.ProductVariantsBulkCreateStrategyRemoveStandaloneVariant,
+					gomock.Eq(v["productId"].(string)),
+					gomock.Eq(v["variants"].([]model.ProductVariantsBulkInput)),
+					gomock.Eq(model.ProductVariantsBulkCreateStrategyRemoveStandaloneVariant),
 				).Return(nil)
 			}
 
