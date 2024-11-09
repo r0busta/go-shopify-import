@@ -176,7 +176,17 @@ func TestDoOverwriteFalse(t *testing.T) {
 
 			for _, p := range tt.wantProductCreate {
 				p := p
-				productService.EXPECT().Create(context.Background(), gomock.Eq(importer.ToCreateInput(p.Product)), gomock.Any()).Return(nil, nil)
+				productService.EXPECT().Create(
+					context.Background(),
+					gomock.Eq(importer.ToCreateInput(p.Product)),
+					gomock.Any(),
+				).Return(model.NewString("product-id"), nil)
+				productService.EXPECT().VariantsBulkCreate(
+					gomock.Any(),
+					gomock.Eq("product-id"),
+					gomock.Eq(p.Variants),
+					gomock.Eq(model.ProductVariantsBulkCreateStrategyRemoveStandaloneVariant),
+				).Return(nil)
 			}
 
 			for _, p := range tt.wantProductUpdate {

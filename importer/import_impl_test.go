@@ -20,7 +20,7 @@ func Test_dedupProductsByHandle_overwrite(t *testing.T) {
 		wantError    bool
 	}{
 		{
-			name: "no products matching by handle — a product will be created",
+			name: "no products matching by handle — a product and its variants will be created",
 			args: args{
 				new: []ProductInput{
 					{

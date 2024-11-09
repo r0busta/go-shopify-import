@@ -348,15 +348,36 @@ func adjustOptionsOrder(selectedOptions []model.VariantOptionValueInput, newOpti
 }
 
 func createProductsBulk(s *shopify.Client, products []ProductInput) {
+	variants := []variantBulkCreateInput{}
+
 	for i, p := range products {
 		log.Println(i+1, "of", len(products), "creating", zeroOrValue(p.Product.Handle))
 
-		_, err := s.Product.Create(context.Background(), ToCreateInput(p.Product), p.Media)
+		id, err := s.Product.Create(context.Background(), ToCreateInput(p.Product), p.Media)
 		if err != nil {
 			log.Printf("create product error: %s", err)
 			b, _ := json.MarshalIndent(p, "", "    ")
 			log.Println(string(b))
 		}
+
+		if id == nil {
+			log.Printf("create product error: id is not set")
+			b, _ := json.MarshalIndent(p, "", "    ")
+			log.Println(string(b))
+		}
+
+		if len(p.Variants) > 0 {
+			variants = append(variants, variantBulkCreateInput{
+				ProductID:                *id,
+				ProductVariantsBulkInput: p.Variants,
+			})
+		}
+	}
+
+	log.Printf("adding variants to created products: %d to be added", len(variants))
+	err := createVariantsBulk(s, variants)
+	if err != nil {
+		log.Printf("create product variants error: %s", err)
 	}
 }
 
