@@ -7,10 +7,10 @@ toolchain go1.23.3
 require (
 	github.com/golang/mock v1.6.0
 	github.com/r0busta/go-object-store v0.0.1
-	github.com/r0busta/go-shopify-graphql-model/v4 v4.0.0
-	github.com/r0busta/go-shopify-graphql/v9 v9.0.5
+	github.com/r0busta/go-shopify-graphql-model/v4 v4.1.0
+	github.com/r0busta/go-shopify-graphql/v9 v9.0.7
 	github.com/r0busta/graphql v1.2.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/thoas/go-funk v0.9.3
 )
 
@@ -22,8 +22,8 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
-	golang.org/x/net v0.31.0 // indirect
-	golang.org/x/sys v0.27.0 // indirect
+	golang.org/x/net v0.33.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
 	gopkg.in/guregu/null.v4 v4.0.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
