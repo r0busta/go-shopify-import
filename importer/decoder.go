@@ -3,7 +3,7 @@ package importer
 import (
 	"io"
 
-	"github.com/r0busta/go-shopify-graphql-model/v4/graph/model"
+	"github.com/r0busta/go-shopify-graphql-model/v5/graph/model"
 )
 
 type ProductInput struct {

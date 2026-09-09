@@ -9,9 +9,9 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/r0busta/go-shopify-graphql-model/v4/graph/model"
-	"github.com/r0busta/go-shopify-graphql/v9"
-	shopifymock "github.com/r0busta/go-shopify-graphql/v9/mock"
+	"github.com/r0busta/go-shopify-graphql-model/v5/graph/model"
+	"github.com/r0busta/go-shopify-graphql/v10"
+	shopifymock "github.com/r0busta/go-shopify-graphql/v10/mock"
 	"github.com/r0busta/go-shopify-import/v4/importer"
 	graphqlmock "github.com/r0busta/graphql/mock"
 	"github.com/stretchr/testify/require"

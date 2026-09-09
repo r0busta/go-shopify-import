@@ -19,5 +19,5 @@ Module path `github.com/r0busta/go-shopify-import/v4`. No CLI.
 
 - `go build ./... && go vet ./... && go test -race ./...` must pass.
 - The importer mutates stores. Never run it against a store as a test.
-- Depends on `go-shopify-graphql/v9` and `go-shopify-graphql-model/v4`.
+- Depends on `go-shopify-graphql/v10` and `go-shopify-graphql-model/v5`.
   Bumping either major is a coordinated change.
