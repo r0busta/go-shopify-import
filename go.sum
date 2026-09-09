@@ -15,18 +15,17 @@ github.com/modern-go/reflect2 v1.0.2/go.mod h1:yWuevngMOJpCy52FWWMvUC8ws7m/LJsjY
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/r0busta/go-object-store v0.0.1 h1:U7AN7eKqTflcVthyx11tgDtPorGBjAER1mzh+Mgth68=
 github.com/r0busta/go-object-store v0.0.1/go.mod h1:4TVkuAXmkYFF8hktztePn9TkSWtsTv1RtfdjxbbxuSI=
-github.com/r0busta/go-shopify-graphql-model/v4 v4.1.0 h1:ScJWP3rIqKrMH9ql6CxlGZisx01jOtb+AB71Wy3GwGQ=
-github.com/r0busta/go-shopify-graphql-model/v4 v4.1.0/go.mod h1:jwaN7JM4+D1ssSHOqK0xa08ZiEOVRuiTL5x+Jakc1AU=
-github.com/r0busta/go-shopify-graphql/v9 v9.0.9 h1:C8tmeRSyTACwJTlvUt2MscSeiLN66x0/8+WB/Jq+0z8=
-github.com/r0busta/go-shopify-graphql/v9 v9.0.9/go.mod h1:KdDG/+5CglqzFVsqH/0Bpg/HHOPABgFLqnwevGDFCXo=
+github.com/r0busta/go-shopify-graphql-model/v4 v4.2.0 h1:1ZiQDAMpY2W0xzBT52Kj/aSNg8vvydXOC5m//uMgVkw=
+github.com/r0busta/go-shopify-graphql-model/v4 v4.2.0/go.mod h1:q/JhaUDO0EF5q1K8HUq54Oo+FSirzhaeLGRAu0Ei14I=
+github.com/r0busta/go-shopify-graphql/v9 v9.1.0 h1:C6Zt7AR0IapXFhDs9oRrhsdmxwMspvCnX2X3Ryiumtw=
+github.com/r0busta/go-shopify-graphql/v9 v9.1.0/go.mod h1:PfsBKJUGQVU9tYZ0O2R2i+9ULzWseN2300e3lCK8GsM=
 github.com/r0busta/graphql v1.2.0 h1:vbq+Fyuegajydfu9mQsjNBXAJTfMYrczOLJdhLVhsrQ=
 github.com/r0busta/graphql v1.2.0/go.mod h1:tnBqVGxQVmck/AhJ6VSd2zr5JjXqDm7Rn9ThGRrRg0g=
-github.com/sirupsen/logrus v1.9.3 h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ=
-github.com/sirupsen/logrus v1.9.3/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
+github.com/sirupsen/logrus v1.10.2 h1:G2SED73/qrAu6YwbdxOD6peLkCBI3z7L+ykJFTXJBBo=
+github.com/sirupsen/logrus v1.10.2/go.mod h1:SLEg8TqYulVKKfIGHldVp2K2aYz2DKSVBq4g/H5bR7Q=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
-github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=
 github.com/stretchr/testify v1.12.1/go.mod h1:MDEgiDPPsNp5cuIrHPPCyornHKgEVbtFUmoNlxoYthg=
 github.com/thoas/go-funk v0.9.3 h1:7+nAEx3kn5ZJcnDm2Bh23N2yOtweO14bi//dvRtgLpw=
@@ -49,7 +48,6 @@ golang.org/x/sys v0.0.0-20190412213103-97732733099d/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20201119102817-f84b799fce68/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210330210617-4fbd30eecc44/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210510120138-977fb7262007/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
-golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.28.0 h1:Fksou7UEQUWlKvIdsqzJmUmCX3cZuD2+P3XyyzwMhlA=
 golang.org/x/sys v0.28.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTFZPUcA=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
@@ -65,4 +63,3 @@ gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8
 gopkg.in/guregu/null.v4 v4.0.0 h1:1Wm3S1WEA2I26Kq+6vcW+w0gcDo44YKYD7YIEJNHDjg=
 gopkg.in/guregu/null.v4 v4.0.0/go.mod h1:YoQhUrADuG3i9WqesrCmpNRwm1ypAgSHYqoOcTu/JrI=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
-gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
